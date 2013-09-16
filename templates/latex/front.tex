@@ -1,0 +1,80 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Simple Sectioned Essay Template
+% LaTeX Template
+%
+% This template has been downloaded from:
+% http://www.latextemplates.com
+%
+% Note:
+% The \lipsum[#] commands throughout this template generate dummy text
+% to fill the template out. These commands should all be removed when 
+% writing essay content.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+% PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt]{article} % Default font size is 12pt, it can be changed here
+
+\setlength{\parskip}{0.4cm plus4mm minus3mm}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{geometry} % Required to change the page size to A4
+\geometry{a4paper} % Set the page size to be A4 as opposed to the default US Letter
+
+\usepackage{graphicx} % Required for including pictures
+
+\usepackage{float} % Allows putting an [H] in \begin{figure} to specify the exact location of the figure
+\usepackage{wrapfig} % Allows in-line images such as the example fish picture
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{hyperref} 
+\usepackage{listings}
+\RequirePackage[dutch, english]{babel}
+
+\usepackage[sc]{mathpazo}
+\linespread{1.2}         % Palatino needs more leading (space between lines)
+\usepackage[T1]{fontenc}
+
+%\setlength\parindent{0pt} % Uncomment to remove all indentation from paragraphs
+
+\let\stdsection\section
+\renewcommand\section{\newpage\stdsection}
+
+\newcommand*{\titleGM}{\begingroup % Create the command for including the title page in the document
+\hbox{ % Horizontal box
+\hspace*{0.2\textwidth} % Whitespace to the left of the title page
+\rule{1pt}{\textheight} % Vertical line
+\hspace*{0.05\textwidth} % Whitespace between the vertical line and title page text
+\parbox[b]{0.75\textwidth}{ % Paragraph box which restricts text to less than the width of the page
+
+{\noindent\Huge\bfseries MurDoc}\\[1\baselineskip] % Title
+{\large \textit{Lightweight Documentation}}\\[2\baselineskip] % Tagline or further description
+{\Large \textsc{Michael Voorhaen}} % Author name
+
+\vspace{0.5\textheight} % Whitespace between the title block and the publisher
+% {\noindent The Publisher \plogo}\\[\baselineskip] % Publisher and logo
+}}
+\endgroup}
+
+\usepackage{float}
+
+\makeatletter
+\def\maxwidth{%
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\begin{document}
+
+\titleGM % This command includes the title page
+\tableofcontents
+
+\newpage
