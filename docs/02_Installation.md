@@ -1,6 +1,6 @@
 # Installation
 
-Murdoc is available through [npm](npmjs.org).
+Murdoc is available through [npm](http://npmjs.org).
 
  > npm install -g murdoc
 
