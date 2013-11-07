@@ -37,7 +37,7 @@ Make sure the following tools are also installed:
 
 Create a new Murdoc project and publish it to html.
 
- > murdoc --create folder-name --watch --server --output=html
+ > murdoc --create --docs folder-name --watch --serve --output=html
 
 Next direct your browser to <http://localhost:4000> and you will see the Murdoc documentation. The next time you want to work on a project you can use:
 

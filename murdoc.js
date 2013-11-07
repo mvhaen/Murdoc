@@ -196,6 +196,9 @@ function JekyllParser() {
 			wrench.rmdirSyncRecursive(jekyll_out);
 		}
 		wrench.copyDirSyncRecursive(jekyll_tpl, jekyll_out);
+		if (!fs.existsSync(jekyll_out + "/_includes")) {
+			fs.mkdirSync(jekyll_out + "/_includes");	
+		}
 		if (!fs.existsSync(jekyll_out + "/_includes/toc")) {
 			fs.mkdirSync(jekyll_out + "/_includes/toc");	
 		}
