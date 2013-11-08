@@ -41,7 +41,7 @@ Create a new Murdoc project and publish it to html.
 
 Next direct your browser to <http://localhost:4000> and you will see the Murdoc documentation. The next time you want to work on a project you can use:
 
- > murdoc --docs folder-name --watch --server --output=html
+ > murdoc --docs folder-name --watch --serve --output=html
 
 In 'folder-name' you will now find three folders:
 
