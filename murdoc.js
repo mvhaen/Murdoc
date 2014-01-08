@@ -39,6 +39,14 @@ var argv = optimist
     	alias: 'help',
     	default: false
     })
+	.options('x', {
+    	alias: 'image-prefix',
+    	default: "/images"
+    })
+	.options('t', {
+    	alias: 'latex-image-width',
+    	default: "\maxwidth"
+    })
     .argv
 ;
 
@@ -55,6 +63,8 @@ var latex_tpl = path.resolve(argv.d+"/templates/latex");
 var build = path.resolve(argv.d+"/build");
 var jekyll_out = path.resolve(argv.d+"/build/jekyll");
 var latex_out = path.resolve(argv.d+"/build/latex");
+var image_prefix = argv.x;
+var latex_image_width = argv.t;
 var www_prefix = argv.p;
 
 var build_pdf = false;
@@ -435,7 +445,7 @@ function startBuild(path) {
 		root.parse(latex_pre_parser);
 		var latex_parser = new LatexParser();
 		root.parse(latex_parser);
-		sh.run("cd " + latex_out + "; sed 's#\\\includegraphics{/images#\\\includegraphics\[width=\\\\maxwidth\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
+		sh.run("cd " + latex_out + "; sed 's#\\\includegraphics{" + image_prefix + "#\\\includegraphics\[width=" + latex_image_width + "\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
 		
 		var latex = fs.readFileSync(latex_out + "/doc.tex", 'utf8');
 		latex = latex.replace(/{verbatim}/g, "{lstlisting}\n");
