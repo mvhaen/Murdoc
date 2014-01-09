@@ -39,6 +39,18 @@ var argv = optimist
     	alias: 'help',
     	default: false
     })
+	.options('x', {
+    	alias: 'image-prefix',
+    	default: "/images"
+    })
+	.options('t', {
+    	alias: 'latex-image-width',
+    	default: "\maxwidth"
+    })
+	.options('f', {
+    	alias: 'skip-first',
+    	default: false
+    })
     .argv
 ;
 
@@ -55,7 +67,10 @@ var latex_tpl = path.resolve(argv.d+"/templates/latex");
 var build = path.resolve(argv.d+"/build");
 var jekyll_out = path.resolve(argv.d+"/build/jekyll");
 var latex_out = path.resolve(argv.d+"/build/latex");
+var image_prefix = argv.x;
+var latex_image_width = argv.t;
 var www_prefix = argv.p;
+var skip_first = argv.f;
 
 var build_pdf = false;
 var build_html = false;
@@ -350,7 +365,7 @@ function LatexParser() {
 
 	this.handleMarkdownFile = function(section, item, first) {
 		if (item.match(/.md$/)) {
-			// console.log(item);
+			//console.log(item);
 			sh.run('cat ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.md");
 			sh.run("echo \"\n\" >> " + tmp + "/kramdowned.md");
 			var offset = section.precursors.sections.length;
@@ -371,13 +386,13 @@ function LatexParser() {
 			}
 			var precursors = new PrecursorList(section, section.precursors);
 			var childSection = new Section(item, precursors);
-			if (first) {
+			if (first && !skip_first) {
 				var markdown = "# " + section.title + "\n";
 				fs.writeFileSync(tmp + "/kramdowned.md", markdown);
 				var offset = section.precursors.sections.length;
 				if (first) {
 					offset -= 1;
-				}	
+				}
 				sh.run('kramdown -o latex --header-offset ' + offset + " " + tmp + "/kramdowned.md" + " " + latex_out+"/references.md >> " + latex_out + "/doc.tex 2>/dev/null");	
 			}
 			childSection.parse(this);
@@ -435,7 +450,7 @@ function startBuild(path) {
 		root.parse(latex_pre_parser);
 		var latex_parser = new LatexParser();
 		root.parse(latex_parser);
-		sh.run("cd " + latex_out + "; sed 's#\\\includegraphics{/images#\\\includegraphics\[width=\\\\maxwidth\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
+		sh.run("cd " + latex_out + "; sed 's#\\\includegraphics{" + image_prefix + "#\\\includegraphics\[width=" + latex_image_width + "\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
 		
 		var latex = fs.readFileSync(latex_out + "/doc.tex", 'utf8');
 		latex = latex.replace(/{verbatim}/g, "{lstlisting}\n");
