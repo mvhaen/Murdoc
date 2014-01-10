@@ -455,6 +455,7 @@ function startBuild(path) {
 		var latex = fs.readFileSync(latex_out + "/doc.tex", 'utf8');
 		latex = latex.replace(/{verbatim}/g, "{lstlisting}\n");
 		latex = latex.replace(/{longtable}/g, "{tabular}");
+		latex = latex.replace(/\\%NEWPAGE\\%/g, "\\newpage");
 		fs.writeFileSync(latex_out + "/doc.tex", latex);
 
 		sh.run("cd " + latex_out + "; pdflatex --interaction=batchmode main.tex &> /dev/null; pdflatex --interaction=batchmode main.tex &> /dev/null");
