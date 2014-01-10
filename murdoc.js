@@ -45,7 +45,7 @@ var argv = optimist
     })
 	.options('t', {
     	alias: 'latex-image-width',
-    	default: "\maxwidth"
+    	default: "\\\\maxwidth"
     })
 	.options('f', {
     	alias: 'skip-first',
@@ -454,6 +454,7 @@ function startBuild(path) {
 		
 		var latex = fs.readFileSync(latex_out + "/doc.tex", 'utf8');
 		latex = latex.replace(/{verbatim}/g, "{lstlisting}\n");
+		latex = latex.replace(/{longtable}/g, "{tabular}");
 		fs.writeFileSync(latex_out + "/doc.tex", latex);
 
 		sh.run("cd " + latex_out + "; pdflatex --interaction=batchmode main.tex &> /dev/null; pdflatex --interaction=batchmode main.tex &> /dev/null");
