@@ -60,7 +60,9 @@ if (argv.h) {
 }
 
 temp.track();
-fs.mkdirSync('/tmp/murdoc');
+if (!fs.existsSync('/tmp/murdoc')) {
+	fs.mkdirSync('/tmp/murdoc');
+}
 
 var source = path.resolve(argv.d + "/docs");
 var tmp = temp.mkdirSync({dir: '/tmp/murdoc'});
