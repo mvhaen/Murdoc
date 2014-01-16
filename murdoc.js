@@ -59,8 +59,11 @@ if (argv.h) {
 	process.exit(0)
 }
 
+temp.track();
+fs.mkdirSync('/tmp/murdoc');
+
 var source = path.resolve(argv.d + "/docs");
-var tmp = temp.mkdirSync('murdoc');
+var tmp = temp.mkdirSync({dir: '/tmp/murdoc'});
 var tpl = path.resolve(argv.d+"/templates");
 var jekyll_tpl = path.resolve(argv.d+"/templates/jekyll");
 var latex_tpl = path.resolve(argv.d+"/templates/latex");
