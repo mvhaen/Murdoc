@@ -3,13 +3,13 @@
 var cheerio = require('cheerio');
 var fs = require('fs-extra');
 var temp = require('temp');
-var sh = require('execSync');
 var yaml = require('js-yaml');
 var wrench = require('wrench');
 var util = require('util');
 var chokidar = require('chokidar');
 var path = require('path');
 var optimist = require('optimist');
+var child_process = require('child_process');
 
 var argv = optimist
     .options('d', {
@@ -116,7 +116,7 @@ function PrecursorList(section, precursors) {
 		}
 		if (this.section !== undefined) {
 			this.sections.push(this.section);
-		}	
+		}
 	}
 
 	this.sourcePath = function () {
@@ -186,7 +186,7 @@ function Section(name, precursors) {
 	this.breadcrumbs = function() {
 		var ret = "";
 		for (var i = 0; i < this.precursors.sections.length; i++) {
-			ret += this.precursors.sections[i].breadcrumb() + " <i class=\"icon-angle-right\"></i> "; 
+			ret += this.precursors.sections[i].breadcrumb() + " <i class=\"icon-angle-right\"></i> ";
 		}
 		ret += this.breadcrumb();
 		return ret;
@@ -217,10 +217,10 @@ function JekyllParser() {
 		}
 		wrench.copyDirSyncRecursive(jekyll_tpl, jekyll_out);
 		if (!fs.existsSync(jekyll_out + "/_includes")) {
-			fs.mkdirSync(jekyll_out + "/_includes");	
+			fs.mkdirSync(jekyll_out + "/_includes");
 		}
 		if (!fs.existsSync(jekyll_out + "/_includes/toc")) {
-			fs.mkdirSync(jekyll_out + "/_includes/toc");	
+			fs.mkdirSync(jekyll_out + "/_includes/toc");
 		}
 		fs.appendFileSync(jekyll_out+"/_references.md", "[home]: /\n");
 		fs.appendFileSync(jekyll_out+"/_config.yml", "location: " + www_prefix + "\n");
@@ -230,13 +230,13 @@ function JekyllParser() {
 
 		initToc(section);
 		handleMarkdownFiles(section, this);
-		// handleSubDirectories(section, this);		
+		// handleSubDirectories(section, this);
 	}
 
 	this.handleMarkdownFile = function(section, item, first) {
 		if (item.match(/.md$/)) {
 			// console.log(item);
-			sh.run('kramdown ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.html 2> /dev/null");
+			child_process.execSync('kramdown ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.html 2> /dev/null");
 			var html = fs.readFileSync(tmp + "/kramdowned.html", 'utf8');
 			var page = section.url() + "/" + item;
 			page = page.replace(".md", ".html");
@@ -253,9 +253,9 @@ function JekyllParser() {
 			var title = $('h1').first().text();
 			fs.appendFileSync(jekyll_out+"/_references.md", "[_nav-"+title.replace(" ", "-")+"]: " + www_prefix+page +"\n");
 			if (!first) {
-				fs.appendFileSync(jekyll_out + "/_includes/toc" + section.url() + "/toc.md", " * <i class=\"icon-file-text-alt\"></i>" + "[" + title + "][_nav-" + title.replace(" ", "-") + "]\n");	
+				fs.appendFileSync(jekyll_out + "/_includes/toc" + section.url() + "/toc.md", " * <i class=\"icon-file-text-alt\"></i>" + "[" + title + "][_nav-" + title.replace(" ", "-") + "]\n");
 			}
-					
+
 			var markdown = fs.readFileSync(section.sourcePath() + "/" + item, 'utf8');
 			if (www_prefix !== "") {
 				markdown = markdown.replace(/\(\/images/g, "("+www_prefix+"/images");
@@ -268,9 +268,9 @@ function JekyllParser() {
 				// console.log('this item is becoming the index ' + section.targetPath());
 				fs.appendFileSync(section.targetPath() + "/index.md", yaml);
 				fs.appendFileSync(section.targetPath() + "/index.md", markdown);
-				fs.appendFileSync(section.targetPath() + "/index.md", "\n");				
+				fs.appendFileSync(section.targetPath() + "/index.md", "\n");
 			}
-		}		
+		}
 	}
 
 	this.handleSubDirectory = function (section, item, first) {
@@ -296,7 +296,7 @@ function JekyllParser() {
 				var yaml = "---\nlayout: default\ntitle: "+section.title+"\ntoc: toc"+section.url()+"/toc.md\n---\n";
 				fs.appendFileSync(section.targetPath() + "/index.md", yaml);
 				fs.appendFileSync(section.targetPath() + "/index.md", markdown);
-				fs.appendFileSync(section.targetPath() + "/index.md", "\n");				
+				fs.appendFileSync(section.targetPath() + "/index.md", "\n");
 			}
 
 			childSection.parse(this);
@@ -321,13 +321,13 @@ function LatexPreParser() {
 
 	this.parse = function(section) {
 		handleMarkdownFiles(section, this);
-//		handleSubDirectories(section, this);		
+//		handleSubDirectories(section, this);
 	}
 
 	this.handleMarkdownFile = function(section, item) {
 		if (item.match(/.md$/)) {
 			// console.log(item);
-			sh.run('kramdown ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.html 2> /dev/null");
+			child_process.execSync('kramdown ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.html 2> /dev/null");
 			var html = fs.readFileSync(tmp + "/kramdowned.html", 'utf8');
 			$ = cheerio.load(html);
 			$(':header').each(function(i, element) {
@@ -335,7 +335,7 @@ function LatexPreParser() {
 				location = location.replace("index.md", "");
 			 	fs.appendFileSync(latex_out+"/references.md", "["+$(this).attr('id')+"]: #" + location +"\n");
 			});
-		}		
+		}
 	}
 
 	this.handleSubDirectory = function (section, item) {
@@ -371,14 +371,14 @@ function LatexParser() {
 	this.handleMarkdownFile = function(section, item, first) {
 		if (item.match(/.md$/)) {
 			//console.log(item);
-			sh.run('cat ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.md");
-			sh.run("echo \"\n\" >> " + tmp + "/kramdowned.md");
+			child_process.execSync('cat ' + section.sourcePath() + "/" + item + " > " + tmp + "/kramdowned.md");
+			child_process.execSync("echo \"\n\" >> " + tmp + "/kramdowned.md");
 			var offset = section.precursors.sections.length;
 			if (first && offset > 0) {
 				offset -= 1;
 			}
-			sh.run('kramdown -o latex --header-offset ' + offset + " " + tmp + "/kramdowned.md" + " " + latex_out+"/references.md >> " + latex_out + "/doc.tex 2>/dev/null");
-		}		
+			child_process.execSync('kramdown -o latex --header-offset ' + offset + " " + tmp + "/kramdowned.md" + " " + latex_out+"/references.md >> " + latex_out + "/doc.tex 2>/dev/null");
+		}
 	}
 
 	this.handleSubDirectory = function (section, item, first) {
@@ -398,7 +398,7 @@ function LatexParser() {
 				if (first) {
 					offset -= 1;
 				}
-				sh.run('kramdown -o latex --header-offset ' + offset + " " + tmp + "/kramdowned.md" + " " + latex_out+"/references.md >> " + latex_out + "/doc.tex 2>/dev/null");	
+				child_process.execSync('kramdown -o latex --header-offset ' + offset + " " + tmp + "/kramdowned.md" + " " + latex_out+"/references.md >> " + latex_out + "/doc.tex 2>/dev/null");
 			}
 			childSection.parse(this);
 		}
@@ -414,7 +414,7 @@ function LatexParser() {
 function initToc(section) {
 		/// initialize a TOC entry for this subfolder
 	if (!fs.existsSync(jekyll_out + "/_includes/toc" + section.url())) {
-		fs.mkdirSync(jekyll_out + "/_includes/toc" + section.url());	
+		fs.mkdirSync(jekyll_out + "/_includes/toc" + section.url());
 	}
 	fs.appendFileSync(jekyll_out + "/_includes/toc" + section.url() + "/toc.md", section.breadcrumbs() + "\n\n");
 }
@@ -422,7 +422,7 @@ function initToc(section) {
 function handleMarkdownFiles(section, parser) {
 	var first = true;
 	section.contents.forEach(function (item) {
-		var isHidden = /^\./.test(item);		
+		var isHidden = /^\./.test(item);
 		if (!isHidden) {
 			parser.handleMarkdownFile(section, item, first);
 			parser.handleSubDirectory(section, item, first);
@@ -441,7 +441,7 @@ function startBuild(path) {
 		}
 		var jekyll_parser = new JekyllParser();
 		root.parse(jekyll_parser);
-		sh.run('jekyll build -s ' + jekyll_out + " -d " + jekyll_out + "/_site &> /dev/null");
+		child_process.execSync('jekyll build -s ' + jekyll_out + " -d " + jekyll_out + "/_site &> /dev/null");
 		console.log("done");
 	}
 
@@ -455,15 +455,15 @@ function startBuild(path) {
 		root.parse(latex_pre_parser);
 		var latex_parser = new LatexParser();
 		root.parse(latex_parser);
-		sh.run("cd " + latex_out + "; sed 's#\\\includegraphics{" + image_prefix + "#\\\includegraphics\[width=" + latex_image_width + "\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
-		
+		child_process.execSync("cd " + latex_out + "; sed 's#\\\includegraphics{" + image_prefix + "#\\\includegraphics\[width=" + latex_image_width + "\]{images#g' doc.tex > tmp.tex; sed 's#begin{figure}#begin{figure}[H]#g' tmp.tex > doc.tex; rm tmp.tex");
+
 		var latex = fs.readFileSync(latex_out + "/doc.tex", 'utf8');
 		latex = latex.replace(/{verbatim}/g, "{lstlisting}\n");
 		latex = latex.replace(/{longtable}/g, "{tabular}");
 		latex = latex.replace(/\\%NEWPAGE\\%/g, "\\newpage");
 		fs.writeFileSync(latex_out + "/doc.tex", latex);
 
-		sh.run("cd " + latex_out + "; pdflatex --interaction=batchmode main.tex &> /dev/null; pdflatex --interaction=batchmode main.tex &> /dev/null");
+		child_process.execSync("cd " + latex_out + "; pdflatex --interaction=batchmode main.tex &> /dev/null; pdflatex --interaction=batchmode main.tex &> /dev/null");
 		console.log("done");
 	}
 }
@@ -507,4 +507,3 @@ if (argv.s) {
 console.log("Outputting to " + argv.d+"/build")
 
 startBuild();
-
